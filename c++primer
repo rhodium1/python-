@@ -1,0 +1,49 @@
+from selenium import webdriver
+from selenium.webdriver.common.desired_capabilities
+import requests as rq
+from bs4 import BeautifulSoup as bs
+import time
+
+def download(driver, target_path):
+    """Download the currently displayed page to target_path."""
+    def execute(script, args):
+        driver.execute('executePhantomScript',
+                       {'script': script, 'args': args})
+
+    # hack while the python interface lags
+    driver.command_executor._commands['executePhantomScript'] = ('POST', '/session/$sessionId/phantom/execute')
+    # set page format
+    # inside the execution script, webpage is "this"
+
+
+    # render current page
+    render = '''this.render("{}")'''.format(target_path)
+    execute(render, [])
+
+def getNextUrl(url):
+    '''从当前页找到下一页的url'''
+    r = rq.get(url);
+    print(r.status_code)
+    soup = bs(r.text,'lxml')
+    tag = soup.select("li.w24 > a.next")
+    nexturl = tag[0].attrs['href']
+    print(nexturl)
+    return nexturl
+
+if __name__ == "__main__":
+    url = "/9780133053043/ch03lev1sec6_html"#封面url
+    i = 96
+    while url != "/9780133053043/app02_html":
+        path = "c++/"+str(i)+".pdf"#路径名
+        driver = webdriver.PhantomJS()
+        url = "http://proquest.safaribooksonline.com" + url
+        driver.get(url)
+        download(driver,path)
+        driver.quit()
+        print(i,"download complete!")
+        time.sleep(1)
+        url = getNextUrl(url)
+        i += 1
+
+
+
