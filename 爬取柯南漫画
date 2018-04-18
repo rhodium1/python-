@@ -11,7 +11,7 @@ def getImagUrl(url):
 
 def downloadImag(imurl,chea):
     '''下载图片'''
-    url = "http://183.91.33.78/p0.xiaoshidi.net/" + imurl
+    url = "http://p0.xiaoshidi.net/" + imurl
     count = 0
     imagurl = url.format(count)#图片url
     r = rq.get(imagurl)
