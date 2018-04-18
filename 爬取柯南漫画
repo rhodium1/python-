@@ -1,0 +1,37 @@
+import requests as rq
+import re
+import os
+
+def getImagUrl(url):
+    '''根据每一卷的首页面找出其图片url'''
+    r = rq.get(url)
+    li = re.findall(r"\d{4}/\d{2}/\d+.jpg",r.text)
+    imgurl = re.sub(r"\d(?=\.jpg)","{}",li[0])#将最后一个数组改为{}
+    return imgurl
+
+def downloadImag(imurl,chea):
+    '''下载图片'''
+    url = "http://183.91.33.78/p0.xiaoshidi.net/" + imurl
+    count = 0
+    imagurl = url.format(count)#图片url
+    r = rq.get(imagurl)
+    os.mkdir(str(chea))#创建文件夹
+    while(r.status_code == 200):#一直请求下一张图片知道url失效
+        filename =str(chea)+'/'+ str(count) +".jpg"#文件名
+        with open(filename,'wb') as f:#写入文件
+            f.write(r.content)
+        print(chea,count,"download complete!")
+        count += 1
+        imagurl = url.format(count)
+        r = rq.get(imagurl)
+
+def main():
+    url = "http://www.fzdm.com/manhua/142/Vol_{:0>3d}/"
+    cheaper = 1#下载前20卷
+    while cheaper <= 20:
+        cheaper += 1
+        firsturl = url.format(cheaper)
+        imgurl = getImagUrl(firsturl)
+        downloadImag(imgurl,cheaper)
+
+main()
